@@ -151,14 +151,29 @@ public class Server {
      * @throws IOException
      */
     public void serverFileList() throws IOException {
-
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath + "Server.db"));
-        System.out.println("文件名" + " \t" + "上传者 IP" + " \t" + "上传者端口号" + " \t" + "文件大小");
-        String str;
-        while ((str = bufferedReader.readLine()) != null) { // 一次读取字符文本文件的一行字符
-            System.out.println(str);
+        File file = new File(filePath + "Server.db");
+        if(file.exists()&&file.length()>1){
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+            System.out.println("文件名" + " \t" + "上传者 IP" + " \t" + "上传者端口号" + " \t" + "文件大小");
+            String str;
+            while ((str = bufferedReader.readLine()) != null) { // 一次读取字符文本文件的一行字符
+                System.out.println(str);
+            }
+            bufferedReader.close();
+        }else {
+            System.out.println("服务器为空，请上传文件");
         }
-        bufferedReader.close();
+//
+
+    }
+
+    public boolean isFileExit(String fileName){
+        if(fileName!=null){
+            File file = new File(filePath + fileName);
+            return file.exists();
+        }
+        return false;
+
     }
 
 }

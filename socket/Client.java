@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * @author zhouzhm
- * @description
+ * @description 客户端实现文件上传和下载
  * @create 2021-07-30 9:18
  * @project_name training
  */
@@ -20,14 +20,16 @@ public class Client {
     }
 
     /**
-     *
-     * @param filePath
+     * @param filePath 读取filePath路径中的文件上传到服务器
      */
     public void upFile(String filePath) {
         //上传文件，将本地文件传输到服务器端
+        Socket socket = null;
+        DataInputStream fis = null;
+        DataOutputStream ps = null;
         try {
-            Socket socket = new Socket(ip, port);
-//            while (true) {
+            socket = new Socket(ip, port);
+
             // 选择进行传输的文件
             File fi = new File(filePath);
 
@@ -38,8 +40,8 @@ public class Client {
                 dis.readByte();
                 */
             // 获取本地文件输入流和Socket输出流
-            DataInputStream fis = new DataInputStream(new BufferedInputStream(new FileInputStream(filePath)));
-            DataOutputStream ps = new DataOutputStream(socket.getOutputStream());
+            fis = new DataInputStream(new BufferedInputStream(new FileInputStream(filePath)));
+            ps = new DataOutputStream(socket.getOutputStream());
 
             //将文件名及长度传给客户端。这里要真正适用所有平台，例如中文名的处理，还需要加工，具体可以参见Think In Java 4th里有现成的代码。
             ps.writeUTF(fi.getName());
@@ -54,40 +56,63 @@ public class Client {
                 ps.write(buffer, 0, len);
             }
             ps.flush();
-            // 注意关闭socket链接哦，不然客户端会等待server的数据过来，
-            // 直到socket超时，导致数据不完整。
-            fis.close();
-            socket.close();
-            System.out.println("文件传输完成");
-//            }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
         }
+        System.out.println("文件传输完成");
+
+
     }
 
     /**
-     *
-     * @param filePath
-     * @param filename
+     * @param filePath 本地文件夹
+     * @param filename 远程文件名
      */
     public void downFile(String filePath, String filename) {
-        //从服务器端下载文件
+        Socket socket = null;
+        DataOutputStream os = null;
+        DataInputStream is = null;
+        FileOutputStream fos = null;
         try {
-            Socket socket = new Socket(ip, port + 10);
-//            while (true) {
+            //从服务器端下载文件
+            socket = new Socket(ip, port + 10);
 
-            DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+            os = new DataOutputStream(socket.getOutputStream());
             os.writeUTF(filename);
             os.flush();
 
-            DataInputStream is = new DataInputStream(socket.getInputStream());
+            is = new DataInputStream(socket.getInputStream());
             // 获取远程文件大小
             long fileServerSize = is.readLong();
             //1、得到文件名
             String fileName = is.readUTF();
             filePath += fileName;
             System.out.println("新生成的文件名为:" + filePath);
-            FileOutputStream fos = new FileOutputStream(filePath);
+            fos = new FileOutputStream(filePath);
             byte[] b = new byte[1024];
             int length = 0;
             while ((length = is.read(b)) != -1) {
@@ -98,16 +123,38 @@ public class Client {
             if (fileServerSize == size) {
                 System.out.println("文件:" + filePath + "下载成功");
             }
-            os.close();
-            fos.flush();
-            fos.close();
-            is.close();
-            socket.close();
-//            }
-
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
     }
 
@@ -127,8 +174,7 @@ public class Client {
     }
 
     /**
-     *
-     * @param filename
+     * @param filename 本地上传的文件名
      * @throws IOException
      */
     public void addListFiles(String filename) throws IOException {
@@ -139,7 +185,6 @@ public class Client {
     }
 
     /**
-     *
      * @throws IOException
      */
     public void listAllUpFiles() throws IOException {
