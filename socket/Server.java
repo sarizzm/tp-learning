@@ -147,12 +147,11 @@ public class Server {
     }
 
     /**
-     *
      * @throws IOException
      */
     public void serverFileList() throws IOException {
         File file = new File(filePath + "Server.db");
-        if(file.exists()&&file.length()>1){
+        if (file.exists() && file.length() > 1) {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
             System.out.println("文件名" + " \t" + "上传者 IP" + " \t" + "上传者端口号" + " \t" + "文件大小");
             String str;
@@ -160,15 +159,15 @@ public class Server {
                 System.out.println(str);
             }
             bufferedReader.close();
-        }else {
+        } else {
             System.out.println("服务器为空，请上传文件");
         }
 //
 
     }
 
-    public boolean isFileExit(String fileName){
-        if(fileName!=null){
+    public boolean isFileExit(String fileName) {
+        if (fileName != null) {
             File file = new File(filePath + fileName);
             return file.exists();
         }
